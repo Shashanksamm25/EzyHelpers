@@ -1,0 +1,30 @@
+# Python / Django
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+db.sqlite3
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.coverage
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets and local credentials
+*.pem
+*.key
+service-account*.json

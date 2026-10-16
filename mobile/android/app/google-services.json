@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569714434862",
+    "project_id": "ezyhelpers-b69ab",
+    "storage_bucket": "ezyhelpers-b69ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569714434862:android:f9f409575da712cc48d0bf",
+        "android_client_info": {
+          "package_name": "com.example.ezyhelpers_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAY2ShUO6GnhqM6Wi8sFutizd4xub3os"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
