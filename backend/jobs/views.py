@@ -1,4 +1,5 @@
 
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import ValidationError
@@ -6,9 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.shortcuts import get_object_or_404
-
-from .models import Job
+from .models import JobAssignment
 from .serializers import JobSerializer
 
 
@@ -18,9 +17,12 @@ class AssignedJobsView(generics.ListAPIView):
     serializer_class = JobSerializer
 
     def get_queryset(self):
-        return Job.objects.filter(
-            assigned_to=self.request.user
-        ).order_by("-created_at")
+        return (
+            JobAssignment.objects
+            .filter(helper=self.request.user)
+            .select_related("job", "helper")
+            .order_by("-created_at")
+        )
 
 
 class JobDetailView(generics.RetrieveAPIView):
@@ -29,8 +31,10 @@ class JobDetailView(generics.RetrieveAPIView):
     serializer_class = JobSerializer
 
     def get_queryset(self):
-        return Job.objects.filter(
-            assigned_to=self.request.user
+        return (
+            JobAssignment.objects
+            .filter(helper=self.request.user)
+            .select_related("job", "helper")
         )
 
 
@@ -39,35 +43,38 @@ class UpdateJobStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
-        job = get_object_or_404(
-            Job,
+        assignment = get_object_or_404(
+            JobAssignment.objects.select_related("job", "helper"),
             pk=pk,
-            assigned_to=request.user,
+            helper=request.user,
         )
 
         new_status = request.data.get("status")
 
         allowed_transitions = {
-            Job.Status.ASSIGNED: Job.Status.IN_PROGRESS,
-            Job.Status.IN_PROGRESS: Job.Status.COMPLETED,
+            JobAssignment.Status.ASSIGNED: JobAssignment.Status.IN_PROGRESS,
+            JobAssignment.Status.IN_PROGRESS: JobAssignment.Status.COMPLETED,
         }
 
-        expected_status = allowed_transitions.get(job.status)
+        expected_status = allowed_transitions.get(assignment.status)
 
         if expected_status is None:
             raise ValidationError({
-                "status": "This job cannot be changed further."
+                "status": "This assignment cannot be changed further."
             })
 
         if new_status != expected_status:
             raise ValidationError({
-                "status": f"Invalid transition. The next status must be {expected_status}."
+                "status": (
+                    f"Invalid transition. The next status must be "
+                    f"{expected_status}."
+                )
             })
 
-        job.status = new_status
-        job.save(update_fields=["status", "updated_at"])
+        assignment.status = new_status
+        assignment.save(update_fields=["status", "updated_at"])
 
         return Response(
-            JobSerializer(job).data,
+            JobSerializer(assignment).data,
             status=status.HTTP_200_OK,
         )

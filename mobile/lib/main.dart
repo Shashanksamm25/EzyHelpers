@@ -331,12 +331,15 @@ class _JobsScreenState extends State<JobsScreen> {
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () async {
+                      
                       await analytics.logEvent(
                         name: 'job_viewed',
                         parameters: {
-                          'job_id': job['id'].toString(),
+                          'job_id': job['job_id'].toString(),
+                          'assignment_id': job['id'].toString(),
                         },
                       );
+
 
                       if (!context.mounted) return;
 
@@ -386,10 +389,11 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
       await analytics.logEvent(
         name: 'job_status_updated',
         parameters: {
-          'job_id': widget.jobId.toString(),
+          'assignment_id': widget.jobId.toString(),
           'new_status': status,
         },
       );
+
 
       if (!mounted) return;
 
